@@ -1,0 +1,9 @@
+YoWASP Clang package 22.0.0-git20695-13
+https://github.com/YoWASP/clang
+https://www.npmjs.com/package/@yowasp/clang/v/22.0.0-git20695-13
+LLVM Project under Apache-2.0 with LLVM exceptions. See clang/LICENSE-LLVM.txt.
+The bundle fetch wrapper was changed locally to serve two assets gzip-compressed.
+
+browser_wasi_shim 0.4.2
+https://github.com/bjorn3/browser_wasi_shim
+MIT OR Apache-2.0. See wasi/LICENSE-MIT and wasi/LICENSE-APACHE.

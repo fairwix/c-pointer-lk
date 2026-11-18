@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Пять упражнений по указателям на функции в C">
+<title>Указатели на функции · Практика C</title>
+<style>
+:root{color-scheme:light;--paper:#f6f4eb;--ink:#19231b;--muted:#525f54;--accent:#daf681;--edge:#d8ded2;--green:#225a3c;--editor:#17231c}
+*{box-sizing:border-box}[hidden]{display:none!important}body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.55 system-ui,sans-serif}button,textarea{font:inherit}code,pre,textarea{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}header,main{width:min(1100px,calc(100% - 40px));margin:auto}header{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:20px 0;border-bottom:1px solid var(--edge)}.brand{font-weight:750}.logo{display:inline-grid;place-items:center;width:33px;height:33px;margin-right:9px;background:var(--ink);color:var(--accent);border-radius:9px;font:700 18px monospace}.progress{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:.84rem}.steps{display:flex;gap:4px}.steps i{width:14px;height:5px;border-radius:8px;background:#d9dfd2}.steps i.done{background:#488354}.steps i.active{background:#89a94a}main{padding:36px 0 52px}.meta{font-size:.9rem;font-weight:700;color:var(--green);margin:0 0 8px}h1{font-size:clamp(2.1rem,5.6vw,4.1rem);line-height:1.04;letter-spacing:-.055em;margin:0 0 14px}h2{font-size:1rem;margin:0 0 8px}.intro{max-width:760px;margin:0 0 24px;color:var(--muted)}.layout{display:grid;grid-template-columns:minmax(0,1.9fr) minmax(0,1fr);gap:18px;align-items:start}.editor{background:var(--editor);color:#edf5eb;border-radius:16px;overflow:hidden}.editor-top{padding:13px 17px;border-bottom:1px solid #35443a;display:flex;justify-content:space-between;align-items:center;gap:12px;font:14px monospace}.editor-top span{color:#bbcabc}.code{border:0;width:100%;display:block;resize:vertical;min-height:300px;height:clamp(330px,53vh,600px);padding:16px 17px;background:transparent;color:#edf5eb;line-height:1.58;font-size:14px;tab-size:4;white-space:pre}.actions{display:flex;gap:9px;flex-wrap:wrap;padding:13px 16px 16px;border-top:1px solid #35443a}button{font-weight:720;border-radius:8px;border:0;padding:9px 14px;cursor:pointer}button:disabled{opacity:.65;cursor:wait}.primary{background:var(--accent);color:#15210b}.secondary{background:#35463a;color:#f3f8f0}.next{background:var(--ink);color:#fff}.side{display:grid;gap:13px}.panel{padding:16px 18px;border:1px solid var(--edge);border-radius:15px;background:#fffdf7}.terminal{background:#e9eee1;padding:10px 12px;border-radius:8px;white-space:pre-wrap;overflow-wrap:anywhere;margin:8px 0 0;font-size:.84rem}.feedback{margin:0;color:var(--muted)}.feedback[data-state=ok]{color:var(--green);font-weight:750}.feedback[data-state=error]{color:#983b2e}.test-list{padding-left:21px;margin:8px 0 0;font-size:.86rem}.test-list li+li{margin-top:4px}.hint summary{cursor:pointer;font-weight:650}.hint p{margin:8px 0 0;color:var(--muted)}.diagnostic{max-height:260px;overflow:auto}.success-panel{position:relative;overflow:hidden;background:#e9f7c9;border-color:#b0cb78}.success-panel .next{margin-top:13px}.burst{pointer-events:none;position:absolute;inset:0}.spark{position:absolute;top:36%;left:54%;width:7px;height:12px;border-radius:2px;background:var(--color);opacity:0;animation:scatter .95s cubic-bezier(.15,.65,.2,1) both;animation-delay:var(--delay)}.success-panel.celebrate .mark{animation:stamp .5s cubic-bezier(.2,1.4,.45,1) both}.mark{display:inline-grid;place-items:center;width:34px;height:34px;border-radius:50%;background:var(--green);color:white;margin-bottom:9px;font-size:1.2rem}@keyframes stamp{from{transform:scale(.35) rotate(-25deg);opacity:.2}to{transform:scale(1) rotate(0);opacity:1}}@keyframes scatter{0%{opacity:0;transform:translate(0,0) rotate(0)}18%{opacity:.9}100%{opacity:0;transform:translate(var(--x),var(--y)) rotate(var(--spin))}}:focus-visible{outline:3px solid #728a42;outline-offset:3px}.code:focus-visible{outline-offset:-4px}.finish{max-width:650px}.finish p{margin:0;color:var(--muted)}
+@media(max-width:760px){.layout{grid-template-columns:1fr}main{padding-top:26px}.code{font-size:13px}.steps{display:none}}@media(max-width:420px){header,main{width:calc(100% - 24px)}}
+@media(prefers-reduced-motion:reduce){.spark,.success-panel.celebrate .mark{animation:none}}
+</style>
+</head>
+<body>
+<header>
+    <span class="brand"><span class="logo" aria-hidden="true">C</span>Практика по C</span>
+    <div class="progress"><span id="progress">0 из 5 пройдено</span><span class="steps" aria-hidden="true" id="steps"></span></div>
+</header>
+<main>
+    <p id="loading" role="status">Открываем тренажёр…</p>
+    <section id="exercise" hidden>
+        <p class="meta" id="meta"></p>
+        <h1 id="title" tabindex="-1"></h1>
+        <p class="intro" id="task"></p>
+        <div class="layout">
+            <form class="editor" id="editor">
+                <div class="editor-top"><strong>main.c</strong><span>C17</span></div>
+                <textarea class="code" id="source" aria-label="Исходный код C" spellcheck="false" autocapitalize="off" autocomplete="off" wrap="off"></textarea>
+                <div class="actions">
+                    <button type="submit" class="primary" id="check">Запустить тесты</button>
+                    <button type="button" class="secondary" id="reset">Вернуть шаблон</button>
+                </div>
+            </form>
+            <aside class="side">
+                <section class="panel">
+                    <h2>Пример</h2><pre class="terminal" id="example"></pre>
+                </section>
+                <details class="panel hint" id="hint-box">
+                    <summary>Подсказка</summary><p id="hint"></p>
+                </details>
+                <section class="panel">
+                    <h2>Проверка</h2>
+                    <p class="feedback" id="feedback" role="status"></p>
+                    <ul class="test-list" id="tests" hidden></ul>
+                    <pre class="terminal diagnostic" id="detail" hidden></pre>
+                </section>
+                <section class="panel success-panel" id="success" hidden>
+                    <span class="mark" aria-hidden="true">✓</span>
+                    <h2>Задание решено!</h2>
+                    <div class="burst" id="burst" aria-hidden="true"></div>
+                    <button class="next" type="button" id="next">Следующее упражнение →</button>
+                </section>
+            </aside>
+        </div>
+    </section>
+    <section class="panel finish" id="finish" hidden>
+        <span class="mark" aria-hidden="true">✓</span>
+        <h1 tabindex="-1" id="finish-title">Все пять заданий решены</h1>
+        <p>Ты вызвал функцию через указатель, передал callback для обработки массива, собрал таблицу операций, отсортировал книги и отфильтровал числа.</p>
+    </section>
+</main>
+<script>
+const element = id => document.getElementById(id);
+const source = element('source');
+const check = element('check');
+const next = element('next');
+const feedback = element('feedback');
+const success = element('success');
+const draftPrefix = 'c-pointer-lab-pages-draft-v1-';
+let state;
+let current;
+let busy = false;
+let worker;
+const progressKey = 'c-pointer-lab-pages-passed-v1';
+
+function storedProgress(total) {
+    try {
+        const value = Number(localStorage.getItem(progressKey));
+        return Number.isInteger(value) && value >= 0 && value <= total ? value : 0;
+    } catch { return 0; }
+}
+
+function runTests(exercise, code) {
+    if (new TextEncoder().encode(code).length > 24 * 1024) {
+        return Promise.resolve({ ok: false, message: 'Размер программы должен быть не больше 24 КБ.' });
+    }
+    worker ??= new Worker(new URL('./grader-worker.js', location.href), { type: 'module' });
+    return new Promise(resolve => {
+        let timeout = setTimeout(() => stop('Компилятор загружается слишком долго. Повтори проверку.'), 120000);
+        function finish(result) {
+            clearTimeout(timeout);
+            if (worker) {
+                worker.onmessage = null;
+                worker.onerror = null;
+            }
+            resolve(result);
+        }
+        function stop(message, detail = '') {
+            worker.terminate();
+            worker = undefined;
+            finish({ ok: false, message, detail });
+        }
+        worker.onmessage = ({ data }) => {
+            if (data.phase === 'run') {
+                clearTimeout(timeout);
+                showFeedback('Запускаем тесты…');
+                timeout = setTimeout(() => stop('Превышено время выполнения. Проверь циклы.'), 3500);
+                return;
+            }
+            if (data.error) stop(data.error, data.detail);
+            else finish(data.result);
+        };
+        worker.onerror = event => stop('Не удалось загрузить компилятор C.', event.message);
+        worker.postMessage({ exercise, source: code });
+    });
+}
+
+async function request(path, options) {
+    const response = await fetch(path, options);
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.message || 'Не удалось связаться с сервисом проверки.');
+    return data;
+}
+
+function readDraft(number, fallback) {
+    try { return localStorage.getItem(draftPrefix + number) ?? fallback; }
+    catch { return fallback; }
+}
+
+function saveDraft() {
+    try { localStorage.setItem(draftPrefix + current, source.value); }
+    catch { /* Editing also works when browser storage is disabled. */ }
+}
+
+function progress() {
+    element('progress').textContent = state.passed + ' из ' + state.total + ' пройдено';
+    element('steps').replaceChildren(...Array.from({length: state.total}, (_, index) => {
+        const bar = document.createElement('i');
+        if (index < state.passed) bar.className = 'done';
+        else if (index + 1 === current) bar.className = 'active';
+        return bar;
+    }));
+}
+
+function showFeedback(message, status = '', testResults = [], detail = '') {
+    feedback.textContent = message;
+    feedback.dataset.state = status;
+    const list = element('tests');
+    list.replaceChildren(...testResults.map(test => {
+        const item = document.createElement('li');
+        item.textContent = test;
+        return item;
+    }));
+    list.hidden = testResults.length === 0;
+    element('detail').textContent = detail;
+    element('detail').hidden = !detail;
+}
+
+function showExercise(number) {
+    current = number;
+    progress();
+    const exercise = state.exercises[number - 1];
+    element('loading').hidden = true;
+    element('finish').hidden = true;
+    element('exercise').hidden = false;
+    element('meta').textContent = 'Упражнение ' + number + ' из ' + state.total + ' · ' + exercise.time + ' мин';
+    element('title').textContent = exercise.title;
+    element('task').textContent = exercise.task;
+    element('example').textContent = exercise.example;
+    element('hint').textContent = exercise.hint;
+    element('hint-box').open = false;
+    source.value = readDraft(number, exercise.source);
+    source.scrollTop = 0;
+    check.disabled = false;
+    success.hidden = true;
+    success.classList.remove('celebrate');
+    element('burst').replaceChildren();
+    showFeedback('Дополни код и запусти тесты.');
+    element('title').focus();
+}
+
+function celebrate() {
+    success.hidden = false;
+    next.textContent = current === state.total ? 'Завершить практику' : 'Следующее упражнение →';
+    const colors = ['#467047', '#74a457', '#e2a324', '#408779', '#8c61ab'];
+    element('burst').replaceChildren(...Array.from({length: 22}, (_, index) => {
+        const piece = document.createElement('i');
+        const angle = index * Math.PI * 2 / 22;
+        const distance = 70 + index % 4 * 14;
+        piece.className = 'spark';
+        piece.style.setProperty('--x', Math.cos(angle) * distance + 'px');
+        piece.style.setProperty('--y', Math.sin(angle) * distance + 'px');
+        piece.style.setProperty('--spin', (index % 2 ? 1 : -1) * (180 + 10 * index) + 'deg');
+        piece.style.setProperty('--delay', index % 5 * 20 + 'ms');
+        piece.style.setProperty('--color', colors[index % colors.length]);
+        return piece;
+    }));
+    success.classList.remove('celebrate');
+    requestAnimationFrame(() => success.classList.add('celebrate'));
+}
+
+function finish() {
+    element('exercise').hidden = true;
+    element('loading').hidden = true;
+    element('finish').hidden = false;
+    progress();
+    element('finish-title').focus();
+}
+
+source.addEventListener('input', () => {
+    saveDraft();
+    if (!success.hidden) {
+        success.hidden = true;
+        showFeedback('Код изменён. Запусти тесты ещё раз.');
+    }
+});
+
+element('reset').addEventListener('click', () => {
+    if (busy) return;
+    source.value = state.exercises[current - 1].source;
+    saveDraft();
+    success.hidden = true;
+    showFeedback('Шаблон восстановлен.');
+    source.focus();
+});
+
+element('editor').addEventListener('submit', async event => {
+    event.preventDefault();
+    if (busy) return;
+    if (!source.value.trim()) {
+        showFeedback('Добавь код перед запуском тестов.', 'error');
+        return;
+    }
+    busy = true;
+    success.hidden = true;
+    check.disabled = true;
+    source.readOnly = true;
+    showFeedback('Компилируем программу. При первом запуске загружается компилятор C…');
+    try {
+        const result = await runTests(current, source.value);
+        showFeedback(result.message, result.ok ? 'ok' : 'error', result.tests, result.detail);
+        if (result.ok) {
+            state.passed = Math.max(state.passed, current);
+            try { localStorage.setItem(progressKey, String(state.passed)); }
+            catch { /* Progress is still available during this visit. */ }
+            progress();
+            celebrate();
+        }
+    } catch (error) {
+        showFeedback(error.message, 'error');
+    } finally {
+        busy = false;
+        source.readOnly = false;
+        check.disabled = false;
+    }
+});
+
+next.addEventListener('click', () => {
+    if (busy || success.hidden || state.passed < current) return;
+    if (current === state.total) finish();
+    else showExercise(current + 1);
+});
+
+async function start() {
+    if (location.protocol === 'file:') {
+        element('loading').textContent = 'Открой тренажёр по ссылке GitHub Pages или запусти локальный HTTP-сервер.';
+        return;
+    }
+    try {
+        const exercises = await request('./exercises.json');
+        state = { exercises, total: exercises.length, passed: storedProgress(exercises.length) };
+        if (state.passed === state.total) finish();
+        else showExercise(state.passed + 1);
+    } catch (error) {
+        element('loading').textContent = 'Не удалось загрузить задания. Обнови страницу и попробуй снова.';
+    }
+}
+start();
+</script>
+</body>
+</html>

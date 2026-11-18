@@ -1,0 +1,48 @@
+{
+  "1": {
+    "code": "#define main student_main\n#include \"student.c\"\n#undef main\n#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\nint apply(int (*)(int, int), int, int); int max(int, int); int min(int, int);\n#define CHECK(n, expression) do { if (!(expression)) return 20 + (n); } while (0)\n\nstatic int difference(int a, int b) { return a - b; }\nstatic int affine(int a, int b) { return 3 * a + b; }\nint main(void) {\n    CHECK(1, apply(max, 15, 27) == 27 && apply(min, 15, 27) == 15);\n    CHECK(2, apply(difference, -4, 7) == -11 && apply(affine, 5, -2) == 13);\n    CHECK(3, apply(max, -5, -9) == -5 && apply(min, 5, 5) == 5);\n    puts(\"__C_LAB_TESTS_PASSED__\");\n    return 0;\n}\n",
+    "cases": [
+      "Вызов max и min",
+      "Вызов произвольной функции с аргументами в исходном порядке",
+      "Отрицательные и одинаковые числа"
+    ]
+  },
+  "2": {
+    "code": "#define main student_main\n#include \"student.c\"\n#undef main\n#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\nvoid transform_array(int *, int, void (*)(int *)); void triple(int *); void square(int *); void reset(int *);\n#define CHECK(n, expression) do { if (!(expression)) return 20 + (n); } while (0)\n\nstatic int seen;\nstatic void custom(int *value) { ++seen; *value -= 4; }\nint main(void) {\n    int basic[] = {1, 2, 3, 4, 5};\n    transform_array(basic, 5, triple);\n    CHECK(1, basic[0] == 3 && basic[1] == 6 && basic[2] == 9 && basic[3] == 12 && basic[4] == 15);\n    int data[] = {-3, 0, 4, 50};\n    transform_array(data, 3, square);\n    CHECK(2, data[0] == 9 && data[1] == 0 && data[2] == 16 && data[3] == 50);\n    transform_array(data, 3, reset);\n    CHECK(3, data[0] == 0 && data[1] == 0 && data[2] == 0 && data[3] == 50);\n    transform_array(data, 0, custom);\n    CHECK(4, seen == 0 && data[0] == 0);\n    transform_array(data, 3, custom);\n    CHECK(4, seen == 3 && data[0] == -4 && data[1] == -4 && data[2] == -4 && data[3] == 50);\n    puts(\"__C_LAB_TESTS_PASSED__\");\n    return 0;\n}\n",
+    "cases": [
+      "Утроение элементов",
+      "Квадраты отрицательных чисел и границы массива",
+      "Обнуление элементов",
+      "Произвольный callback и пустой массив"
+    ]
+  },
+  "3": {
+    "code": "#define main student_main\n#include \"student.c\"\n#undef main\n#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\nint calculate(int, int, int);\n#define CHECK(n, expression) do { if (!(expression)) return 20 + (n); } while (0)\n\nint main(int argc, char **argv) {\n    if (argc > 1) return student_main();\n    CHECK(1, calculate(0, -4, 7) == 3 && calculate(1, -4, 7) == -11 && calculate(2, -4, 7) == -28);\n    CHECK(2, calculate(3, -15, 4) == -3 && calculate(5, -15, 4) == -3 && calculate(5, 15, 4) == 3);\n    CHECK(3, calculate(3, 3, 0) == 0 && calculate(5, -7, 0) == 0);\n    CHECK(4, calculate(4, 2, 5) == 32 && calculate(4, -3, 3) == -27 && calculate(4, 7, 0) == 1);\n    CHECK(5, calculate(-1, 2, 3) == 0 && calculate(6, 2, 3) == 0);\n    puts(\"__C_LAB_TESTS_PASSED__\");\n    return 0;\n}\n",
+    "cases": [
+      "Сложение, вычитание и умножение",
+      "Целочисленное деление и остаток",
+      "Нулевой делитель",
+      "Степень, в том числе нулевая",
+      "Номера операций вне меню",
+      "Чтение ввода и вывод результата в main"
+    ]
+  },
+  "4": {
+    "code": "#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n#define main student_main\n#include \"student.c\"\n#undef main\n#define CHECK(n, expression) do { if (!(expression)) return 20 + (n); } while (0)\n\n#include <limits.h>\nstatic int reverse_year(const void *a, const void *b) {\n    const Book *x = a, *y = b;\n    return (y->year > x->year) - (y->year < x->year);\n}\n\nint main(void) {\n    Book a = {\"Beta\", \"\", INT_MIN, 4.25f};\n    Book b = {\"Alpha\", \"\", INT_MAX, 4.75f};\n    Book c = {\"Alpha\", \"\", INT_MAX, 4.75f};\n    CHECK(1, compare_by_title(&a, &b) > 0 && compare_by_title(&b, &a) < 0 && compare_by_title(&b, &c) == 0);\n    CHECK(2, compare_by_year(&a, &b) < 0 && compare_by_year(&b, &a) > 0 && compare_by_year(&b, &c) == 0);\n    CHECK(3, compare_by_rating_desc(&a, &b) > 0 && compare_by_rating_desc(&b, &a) < 0 && compare_by_rating_desc(&b, &c) == 0);\n\n    Book books[] = {{\"Beta\", \"\", 1999, 4.25f}, {\"Zeta\", \"\", 1980, 4.75f}, {\"Alpha\", \"\", 2020, 4.5f}};\n    sort_books(books, 3, compare_by_title);\n    CHECK(4, strcmp(books[0].title, \"Alpha\") == 0 && strcmp(books[1].title, \"Beta\") == 0 && strcmp(books[2].title, \"Zeta\") == 0);\n    sort_books(books, 3, compare_by_year);\n    CHECK(4, books[0].year == 1980 && books[1].year == 1999 && books[2].year == 2020);\n    sort_books(books, 3, compare_by_rating_desc);\n    CHECK(4, books[0].rating == 4.75f && books[1].rating == 4.5f && books[2].rating == 4.25f);\n    sort_books(books, 3, reverse_year);\n    CHECK(4, books[0].year == 2020 && books[1].year == 1999 && books[2].year == 1980);\n    puts(\"__C_LAB_TESTS_PASSED__\");\n    return 0;\n}\n",
+    "cases": [
+      "Сравнение названий",
+      "Сравнение годов, включая крайние значения int",
+      "Сравнение дробных рейтингов",
+      "Сортировка с четырьмя компараторами"
+    ]
+  },
+  "5": {
+    "code": "#define main student_main\n#include \"student.c\"\n#undef main\n#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n#include <stdbool.h>\nvoid filter_array(int *, int, bool (*)(int)); bool is_even(int); bool is_positive(int); bool is_double_digit(int);\n#define CHECK(n, expression) do { if (!(expression)) return 20 + (n); } while (0)\n\n#include <limits.h>\nstatic bool select_values(int x) { return x > -48 && x < 5; }\nint main(void) {\n    CHECK(1, is_even(0) && is_even(-8) && !is_even(-3) && !is_even(9));\n    CHECK(2, is_positive(4) && !is_positive(0) && !is_positive(-99));\n    CHECK(3, is_double_digit(10) && is_double_digit(-10) && is_double_digit(99)\n          && is_double_digit(-99) && !is_double_digit(100) && !is_double_digit(-100)\n          && !is_double_digit(9) && !is_double_digit(-9) && !is_double_digit(INT_MIN));\n    int data[] = {-48, 2, 17, -8, 7, 20, 33, 100};\n    filter_array(data, 8, select_values);\n    filter_array(data, 8, is_even);\n    filter_array(data, 0, select_values);\n    filter_array(data, 8, is_double_digit);\n    puts(\"__C_LAB_TESTS_PASSED__\");\n    return 0;\n}\n",
+    "cases": [
+      "Чётность положительных и отрицательных чисел",
+      "Положительные числа и ноль",
+      "Границы двузначных чисел",
+      "Фильтрация произвольным callback, порядок и пустой массив"
+    ]
+  }
+}
